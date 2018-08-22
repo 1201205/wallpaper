@@ -17,6 +17,7 @@ import io.reactivex.Observable
 import io.reactivex.ObservableSource
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiConsumer
+import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import java.util.ArrayList
 import java.util.concurrent.Callable
@@ -42,21 +43,23 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         }
         isLoading = true
         RequestClient.instance.getIDList(mCurrentId).flatMap {
+
             Observable.fromIterable(it.data)
         }.flatMap { t ->
             var flowable = AppDatabase.instance.itemDetailDao().select(t)
             if (flowable.isEmpty.blockingGet()) {
-                Observable.just(RequestClient.instance.getItemDetail(t).blockingFirst().data)
+                var itemDetail = RequestClient.instance.getItemDetail(t).blockingFirst().data
+                AppDatabase.instance.itemDetailDao().insert(itemDetail)
+                Observable.just(itemDetail)
             } else {
                 flowable.toObservable()
             }
         }.collect(Callable<ArrayList<ItemDetail>> { ArrayList() }, BiConsumer<ArrayList<ItemDetail>, ItemDetail> { t1, t2 ->
-            AppDatabase.instance.itemDetailDao().insert(t2)
             t1?.add(t2)
         })
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { t ->
+                .subscribe({ t ->
                     isLoading = false
                     if (adapter.value == null) {
                         adapter.postValue(MainAdapter(t))
@@ -64,11 +67,14 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                         var mainAdapter = adapter.value
                         mainAdapter?.apply {
                             var size = this.itemCount
-                            addList(t)
+                            addList(t!!)
                             notifyItemInserted(size)
                         }
                     }
-                    mCurrentId = t.last().hpcontent_id!!
-                }
+                    mCurrentId = t!!.last().hpcontent_id!!
+                }, {
+                    isLoading = false
+                    Log.e("hyc--error", Log.getStackTraceString(Throwable()))
+                })
     }
 }

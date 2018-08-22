@@ -5,18 +5,19 @@ import android.arch.persistence.room.Delete
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
 import io.reactivex.Flowable
+import io.reactivex.Maybe
 
 @Dao
 interface ItemDetailDao {
     @Query("SELECT * FROM itemDetail")
-    fun getAll(): Flowable<List<ItemDetail>>
+    fun getAll(): Maybe<List<ItemDetail>>
 
 
     @Insert
     fun insert(item: ItemDetail)
 
     @Query("SELECT * FROM itemDetail WHERE hpcontent_id = (:id)")
-    fun select(id: String):Flowable<ItemDetail>
+    fun select(id: String):Maybe<ItemDetail>
 
     @Insert
     fun insertAll(items: List<ItemDetail>)

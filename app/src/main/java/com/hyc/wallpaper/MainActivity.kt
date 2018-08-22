@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Debug
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -45,5 +46,10 @@ class MainActivity : AppCompatActivity() {
         })
         viewModel.adapter.observe(this, Observer<MainAdapter> { t -> Log.e("hyc--ooo", "----" + t!!.itemCount) })
 //        viewModel.count.observe(this,observer)
+    }
+
+    override fun onStop() {
+        super.onStop()
+//        Debug.stopMethodTracing()
     }
 }
