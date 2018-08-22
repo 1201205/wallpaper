@@ -1,7 +1,12 @@
 package com.hyc.wallpaper.model
 
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.PrimaryKey
+
+@Entity(tableName = "itemDetail")
 class ItemDetail {
-    var hpcontent_id: String? = null
+    @PrimaryKey
+    var hpcontent_id: String = ""
     var hp_title: String? = null
     var author_id: String? = null
     var hp_img_url: String? = null

@@ -10,33 +10,27 @@ import com.hyc.wallpaper.databinding.ItemMainBinding
 import com.hyc.wallpaper.model.ItemDetail
 import java.util.ArrayList
 
-class MainAdapter : RecyclerView.Adapter<MainAdapter.ViewHolder> {
-     private var list:List<ItemDetail>
-     constructor(list:ArrayList<ItemDetail>){
-        this.list=list
-        Log.e("hyc--oo","create")
-    }
+class MainAdapter(list: ArrayList<ItemDetail>) : RecyclerView.Adapter<MainAdapter.ViewHolder>() {
+    private var list: MutableList<ItemDetail> = list
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        var inflater=LayoutInflater.from(parent.context)
-        var binding=DataBindingUtil.inflate<ItemMainBinding>(inflater,R.layout.item_main,parent,false)
-        Log.e("hyc--oo","onCreateViewHolder")
-
+        var inflater = LayoutInflater.from(parent.context)
+        var binding = DataBindingUtil.inflate<ItemMainBinding>(inflater, R.layout.item_main, parent, false)
         return ViewHolder(binding.root)
     }
 
     override fun getItemCount(): Int {
-        Log.e("hyc--oo","getItemCount---"+list.size)
         return list.size
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        Log.e("hyc--oo","onBindViewHolder")
-        var binding=DataBindingUtil.getBinding<ItemMainBinding>(holder.itemView)
-        binding!!.itemDetail=list[position]
+        var binding = DataBindingUtil.getBinding<ItemMainBinding>(holder.itemView)
+        binding!!.itemDetail = list[position]
         binding.executePendingBindings()
     }
 
-    class ViewHolder(item:View): RecyclerView.ViewHolder(item) {
 
+    fun addList(items:List<ItemDetail>){
+        list.addAll(items)
     }
+    class ViewHolder(item: View) : RecyclerView.ViewHolder(item)
 }

@@ -9,45 +9,41 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import com.hyc.wallpaper.databinding.ActivityMainBinding
+import com.hyc.wallpaper.model.BaseModel
 import com.hyc.wallpaper.model.ItemDetail
 import com.hyc.wallpaper.net.RequestClient
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.BiConsumer
+import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
+import java.util.ArrayList
+import java.util.concurrent.Callable
 import kotlin.math.log
 
 class MainActivity : AppCompatActivity() {
-    lateinit var tt:RecyclerView
+    lateinit var rvList: RecyclerView
+    lateinit var mManager: LinearLayoutManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        var binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
-        var viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
+        val binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
+        val viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         binding.viewModel = viewModel
         binding.setLifecycleOwner(this)
-        RequestClient.instance.getIDList("null").subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe {
-            Log.e("hyc--oo", it.data.toString() + "---" + it.res + "_-----" + Thread.currentThread().name)
-            viewModel.setItemCount(3871)
-        }
-        RequestClient.instance.getItemDetail("2175").subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribe {
-            Log.e("hyc--oo", it.data.toString())
-            var list:java.util.ArrayList<ItemDetail> = java.util.ArrayList<ItemDetail>()
-//            var list:List<ItemDetail> =ArrayList<ItemDetail>()
-            list.add(it.data)
-            list.add(it.data)
-            list.add(it.data)
-            list.add(it.data)
-            list.add(it.data)
-            list.add(it.data)
-            list.add(it.data)
-            list.add(it.data)
-            viewModel.adapter.postValue(MainAdapter(list))
-//            var layout=LinearLayoutManager(tt.context)
-//            layout.orientation=LinearLayoutManager.VERTICAL
-//            tt.layoutManager=layout
-//            tt.adapter=MainAdapter(list)
-        }
-        val observer: Observer<String> = Observer<String> {
-            Log.e("hyc-ii", "----$it")
-        }
+        rvList = findViewById(R.id.tt)
+        viewModel.firstGetItems()
+        mManager = LinearLayoutManager(this)
+        mManager.orientation = LinearLayoutManager.VERTICAL
+        rvList.layoutManager = mManager
+        rvList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (mManager.findLastVisibleItemPosition() > rvList.adapter.itemCount - 3) {
+                    viewModel.getItems()
+                }
+            }
+        })
+        viewModel.adapter.observe(this, Observer<MainAdapter> { t -> Log.e("hyc--ooo", "----" + t!!.itemCount) })
 //        viewModel.count.observe(this,observer)
     }
 }

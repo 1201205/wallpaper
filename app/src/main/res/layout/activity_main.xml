@@ -24,8 +24,6 @@
         <!--app:layout_constraintTop_toTopOf="parent" />-->
     <android.support.v7.widget.RecyclerView
         android:id="@+id/tt"
-        android:orientation="vertical"
-        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
         android:adapter="@{viewModel.adapter}"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
